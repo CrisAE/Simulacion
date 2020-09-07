@@ -1,0 +1,24 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[numbers,sort&compress]{natbib}
+
+\title{Ejemplo de documento en LaTeX}
+\date{06-09-2020}
+\author{CrisAE}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción} Aquí se introduce un tema interesante.
+\section{El tema}\label{tema}
+ Aquí va lo que sí interesa del tema.
+\subsection{Subtema}
+Profundiza tema de \ref{tema}. Lo más relevante del asunto lo dijo \citet{libro}, así como otra persona dijo algo en \citep{dorigo2006ant} en una cita al azar de Google Scholar.
+
+\section{Conclusión} Se termina el tema pseudointeresante.
+
+\bibliography{EjemploT0}
+\bibliographystyle{plainnat}
+
+\end{document}
