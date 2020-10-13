@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[left=4cm,right=4cm]{geometry}
+
+\title{\bf Práctica 4: diagramas de Voronoi}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Examinación sistemática del efecto del número de semillas y del tamaño de la zona en la distribución de las grietas que se forman en téminos de la mayor distancia euclidiana entre la grieta y el exterior de la pieza \cite{dra}.
+
+\section{Metodología}
+Para efectos de esta práctica, se utiliza el paquete estadístico R versión 4.0.2 \cite{R}. Primeramente, se genera el código que crea la zona en donde se colocarán las semillas, conforme se ha descrito previamente \cite{dra}; las zonas empleadas son de $40\times40$, $60\times60$, $80\times80$ y $100\times100$ celdas. Posteriormente se colocan las semillas en las diferentes zonas creadas, variando la cantidad en 20, 40, 60 y 80 semillas para cada una. Una vez generadas las celdas, se propaga la grieta dentro de ellas, con una mayor probabilidad de que se produzcan en las fronteras de las celdas que dentro de ellas, y mediante el largo de las grietas se calcula la distancia euclidiana máxima de la grieta. 
+\begin{lstlisting}[language=R]
+  euclidiana=function(largo){
+       return(sqrt(sum((i[1]-xg)-(i[2]-yg)**2)))}
+  return(largo)
+\end{lstlisting}
+Finalmente, se genera un gráfico de las distancias euclidianas de las grietas en función del tamaño de la zona de distribución de las semillas y de la cantidad de éstas.
+
+\section{Resultados y discusión}
+En la figura \ref{celdas} se observa un ejemplo de las celdas de Voronoi generadas, en una zona de distribución de $100\times100$ para 60 semillas, y la consecuente formación de la grieta. En la figura \ref{distancia} se presentan las distancias euclidianas máximas de las grietas obtenidas para los diferentes tamaños de zona de distribución de las semillas. 
+
+Se observa que, idependientemente de la cantidad de semillas que se distribuyen, el menor tamaño de zona ($40\times40$) es el que presenta la mayor distancia máxima de la grieta, mientras que para la zona de distribución mayor ($100\times100$) el tamaño de las grietas tienden a ser menores; por otra parte, en los tamaños de zona intermedios, la tendencia a disminuir el tamaño de la grieta conforme al tamaño de la zona también se presentó, con excepción para cuando se distribuyen 80 semillas. Tomando en cuenta las probabilidades de propagación de la grieta, esta tendencia de un menor tamaño de grieta al aumentar el tamaño de la zona se atribuye a que existe una menor cantidad de frontera para las celdas al aumentar la zona cuando se distribuye una cantidad relativamente pequeña de semillas, en este caso 20 y 40 semillas; no obstante, al aumentar el número de semillas a 60 y 80, comienza a observarse una menor variación en los tamaños de grieta para los tamaños de zona intermedios, debido a que el aumento de las semillas genera inminentemente una mayor cantidad de frontera, al ser las celdas Voronoi de un menor tamaño.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{60-p4s.png}
+\caption{Semillas distribuidas.}
+\label{o}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{60-p4c.png}
+\caption{Celdas formadas.}
+\label{s}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{60-p4g_1.png}
+\caption{Grieta formada.}
+\label{se}
+\end{subfigure}
+\caption{Ejemplo de la formación de celdas Voronoi y de la grieta.}
+\label{celdas}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p4_semillas20.png}
+\caption{Con 20 semillas.}
+\label{s20}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p4_semillas40.png}
+\caption{Con 40 semillas.}
+\label{s40}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p4_semillas60.png}
+\caption{Con 60 semillas.}
+\label{s60}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p4_semillas80.png}
+\caption{Con 80 semillas.}
+\label{s80}
+\end{subfigure}
+\caption{Distancias euclidianas máximas obtenidas variando el número de semillas y el tamaño de la zona de distribución de la celda Voronoi.}
+\label{distancia}
+\end{figure}
+
+\section{Conclusión}
+La distancia euclidiana máxima de las grietas propagadas tiende a ser mayor en tamaños de zona de distribución menor y al aumentar la cantidad de semillas.
+
+\bibliography{P4}
+\bibliographystyle{unsrtnat}
+
+\end{document}
