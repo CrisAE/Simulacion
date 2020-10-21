@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[left=3.3cm,right=3.3cm]{geometry}
+
+\title{\bf Práctica 5: método Monte Carlo}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+\begin{enumerate}
+\item Determinar el tamaño de muestra que se requiere por cada lugar decimal de precisión del estimado obtenido para el integral para por lo menos desde uno hasta siete decimales \cite{dra}, comparando con el resultado obtenido en Wolfram Alpha.
+\item Aplicar un método Monte Carlo para la estimación de la pintura necesaria para un mural y comparar el resultado con un conteo exacto.
+\end{enumerate}
+
+\section{Determinación de tamaños de muestra para el integral.}
+\subsection{Metodología}
+Para efectos de esta práctica, se utiliza el paquete estadístico R versión 4.0.2 \cite{R}. Se pretende calcular el valor de la integral \eqref{fx}  para la función \eqref{fx2} empleando el método Monte Carlo, y comparar el valor obtenido por Wolfram Alpha de 0.048834 \cite{wolf}.
+\begin{equation}
+ \int_{3}^{7} f(x) d(x) 
+\label{fx}
+\
+\end{equation}
+
+\begin{equation}
+f(x) = \frac{1}{exp(x) + exp(-x)}
+\label{fx2}
+\end{equation}
+
+
+Se genera el código para calcular el valor del integral conforme a lo ya preestablecido \cite{dra}, empleando números de muestra de 10, 100, 1,000, 10,000, 100,000 y 500,000, realizando diez réplicas para cada una, y posteriormente se calcula el porcentaje de error obtenido respecto al valor de 0.048834. Finalmente, se grafican los resultados en un solo diagrama de caja-bigote.
+
+\subsection{Resultados y discusión}
+En la figura \ref{error} se muestran los resultados obtenidos por la aplicación del método Monte Carlo para la estimación del integral. Se observa que conforme se aumenta la cantidad de muestra el resultado va acercándose más al valor obtenido en Wolfram Alpha \cite{wolf}, ya que el porcentaje de error va reduciéndose y se observa que la mediana se encuentra más cerca del valor real (línea roja).
+
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p5-error.png}
+\end{center}
+\caption{Porcentajes de error obtenidos conforme aumenta la muestra. La línea roja corresponde al valor de 0.048834 para la integral.\label{error}}
+\end{figure}
+Cuando el tamaño de muestra es mínimo, el porcentaje de error es el más alto, presentando la mayor cantidad de variación en los resultados, mientras que en los tamaños de muestra mayores (100,000 y 500,000), las cajas del diagrama correspondientes a estos valores se presentan, prácticamente, como una línea sobre el valor de 0.048834.
+
+\subsection{Conclusión}
+El aumento del tamaño de muestra para la estimación del integral utilizando el método Monte Carlo genera resultados más cercanos al valor real del integral.
+
+
+
+
+\section{Estimación de la cantidad de pintura.}
+\subsection{Metodología}
+Se emplea el paquete estadístico R versión 4.0.2 \cite{R} para la generación del código, y a su vez, el fundamento de una simulación Monte Carlo \cite{mc}. Se elige una imagen para un mural, en este caso el logotipo de Coca Cola \cite{cc}, en donde se toma en cuenta que cada pixel corresponde a $10cm^{2}$ del mural, y que cada litro de pintura rinde $10m^{2}$. Para la cuenta exacta de pixeles se emplea el paquete ``Countcolors'' en R \cite{color}, el cual toma en cuenta rangos definidos de color de pixeles, y además genera una imagen en donde sustituye los pixeles a contar por algún otro color para confirmar que corresponda a la región de interés.
+\begin{lstlisting}[language=R]
+white.center = c(1,1,1) 
+red.center=c(1,0,0)
+blanco=coca.white\$pixel.count
+rojo=coca.red\$pixel.count
+pixeles=c(blanco,rojo)
+pintura=pixeles*0.001 
+\end{lstlisting}
+
+Para estimación por el método Monte Carlo se realiza un muestreo al azar de 10,000 datos a partir de la matriz que corresponde a los pixeles azules de la imagen empleada, debido a que en esta matriz se puede diferenciar el color blanco del rojo por sus valores numéricos, en donde el color rojo debe de ser cercano o igual a cero, mientras que el blanco se acerca al uno. Se realizan 1,000 repeticiones del experimento, para obtener la media de pixeles correspondientes al color rojo, y con ella la estimación de Monte Carlo. La diferencia de este resultado con el total de pixeles de la imagen (160,000) corresponde a la estimación de pixeles de color blanco.
+\begin{lstlisting}
+runs=1000
+for(r in 1:length(runs)){
+  for(s in 1:10000){
+    blue = coca[,,3]
+    x =sample (blue, runs[r])
+    y=sum(x < 0.5)
+    print(y)
+  }
+}
+pix = datos [,3]
+pixm = mean(pix)
+montecarlorojo = pixm*(160000/runs)
+mcblanco=160000-montecarlorojo
+pixelesmc=c(mcblanco,montecarlorojo)
+pinturamc=pixelesmc*0.001 
+\end{lstlisting}
+Una vez obtenidos los pixeles correspondientes a cada color, se calcula la cantidad de pintura necesaria para un mural de $160m^{2}$ de la imagen.
+
+\subsection{Resultados y discusión}
+En el cuadro \ref{tabla} se presenta el número de pixeles de color rojo y blanco y su equivalente el litros de pintura para la estimación con números aleatorios y la cuenta exacta. En la figura \ref{celdas} se muestra la figura original que se emplea en el experimento \cite{cc}, así como las figuras generadas con el paquete countcolors de R, que sustituye los pixeles rojos por color azul y los pixeles blancos por color magenta, como confirmación de los pixeles contados para cada color.
+
+\begin{table}[h]
+\begin{center}
+\caption{Estimación de pixeles y litros de pintura por cada color.}
+\label{tabla}
+\begin{tabular}{c c c c c c}
+\hline
+\textbf{Color}&\multicolumn{2}{c}{\textbf{Monte Carlo}}&\multicolumn{2}{c}{\textbf{Cuenta exacta}}\\
+ &Pixeles&Pintura&Pixeles&Pintura\\
+\hline
+\textbf{Rojo}&149,075&149.01 L&148,524&148.52 L\\
+\textbf{Blanco}&10,925&10.93 L&11,336&11.34 L\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{coca.jpg}
+\caption{Original.}
+\label{o}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{coca-rojo.png}
+\caption{Pixeles rojos.}
+\label{s}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\linewidth}
+\includegraphics[width=\linewidth]{coca-blanco.png}
+\caption{Pixeles blancos.}
+\label{se}
+\end{subfigure}
+\caption{Imagen original del logo de Coca Cola y las sustituciones de color de pixeles objetivo generadas con countcolors en R.}
+\label{celdas}
+\end{figure}
+
+Se observa que en la aproximación realizada por Monte Carlo se obtuvo una leve diferencia respecto al conteo exacto de pixeles, debido a los parámetros del algoritmo de countcolors para su cuantificación, del cual, por la imagen que se genera, se observa que sí abarcó las regiones correctas de color. Por otra parte, para la estimación se tomó en cuenta que en la matriz en donde se realiza el muestreo algunos valores que corresponden a rojo no son exactamente igual a cero (x<0.5), así que el uso de este parámetro es lo que ocasiona la diferencia entre ambos resultados. No obstante, para fines prácticos, sí da una idea aproximada de la cantidad de pintura que se tendría que emplear.
+
+\subsection{Conclusión}
+La implementación del método Monte Carlo para la estimación de pintura sí da una idea aproximada de la cantidad de pintura que se tendría que emplear.
+
+
+\bibliography{P5}
+\bibliographystyle{unsrtnat}
+
+\end{document}
