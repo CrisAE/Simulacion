@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage[numbers,sort&compress]{natbib}
+
+
+\title{\bf Práctica 6: sistema multiagente}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Estudiar el efecto estadístico de de la implementación de una vacuna con probabilidad $p_v$ \cite{dra}, con valor de cero a uno en pasos de 0.1, en el porcentaje máximo de infectados y el momento (iteración) en el cual se alcanza ese máximo. 
+
+\section{Metodología}
+Se emplea el paquete estadístico R versión 4.0.2 \cite{R} para la generación del código, tomando como base lo ya previamente reportado para simular una epidemia \cite{dra}, en donde los agentes podrán estar en uno de tres estados: susceptibles (S), infectados (I) o recuperados (R). La implementación de una vacuna con probabilidad $p_v$ a los agentes al inicio de experimento propicia que se encuentren desde el comienzo en estado R; la variación de $p_v$ se ubica entre cero y uno en pasos de 0.1, y para cada experimento se realizan diez repeticiones.
+
+Se extrae el valor máximo de infectados obtenido en cada experimento, así como la iteración (tiempo) en que se presenta este valor y se reporta aquella en que se alcanza el valor máximo de infectados entre las diez repeticiones.
+\begin{lstlisting}[language=R]
+    mayorinf=0  
+    pasosmax=0 
+    for (tiempo in 1:tmax){ 
+      infectados <- dim(agentes[agentes$estado == "I",])[1]
+      epidemia <- c(epidemia, infectados)
+      if (infectados == 0) {
+        pasosmax=tiempo
+        break 
+      } 
+      if(max(epidemia)>mayorinf){
+        mayorinf=max(epidemia)
+        pasosmax=tiempo
+      }
+\end{lstlisting}
+
+Para el cálculo del porcentaje máximo de infectados se emplea el valor máximo de infectados generado por cada experimento.
+\begin{lstlisting}[language=R]
+porcinf = (mayorinf / n) * 100
+\end{lstlisting}
+
+Finalmente, con el valor de los porcentajes obtenidos para cada probabilidad se genera un gráfico y se realiza la prueba estadística ANOVA para observar el efecto de la probabilidad de vacunación sobre el porcentaje de infectados.
+
+\section{Resultados y discusión}
+En el cuadro \ref{tabla} se presentan los porcentajes del máximo de agentes infectados obtenidos para cada probabilidad de vacunación, así como el tiempo (iteración) en que se presentan; se observa a simple vista que al aumentar la probabilidad inicial de la vacuna, el procentaje máximo de infectados disminuye, hasta llegar a cero para la probabilidad de 1.0, mientras que el tiempo en que se presentan los picos de infección no presenta ningún patrón respecto al aumento de la probabilidad o la cantidad de infectados. Para la máxima probabilidad de vacunación, de 1.0, no se presenta ningún infectado al inicio del experimento, por lo que el tiempo y el porcentaje son iguales a cero.
+\begin{table}[h]
+\begin{center}
+\caption{Porcentajes máximos de agentes infectados obtenidos por cada probabilidad inicial de la vacuna y el tiempo (iteración) en que se presentan.}
+\label{tabla}
+\begin{tabular}{c c c}
+\hline
+\textbf{Probabilidad}&\textbf{Porcentaje}&\textbf{Tiempo}\\
+\hline
+0.0&70\%&36 \\
+0.1&76\%&33\\
+0.2&60\%&45\\
+0.3&42\%&96\\
+0.4&40\%&56\\
+0.5&26\%&53\\
+0.6&24\%&54\\
+0.7&20\%&70\\
+0.8&8\%&85\\
+0.9&4\%&71\\
+1.0&0\%&0\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+En la figura \ref{probs} se presentan los porcentajes del máximo de infectados tomando en cuenta las repeticiones de cada experimento respecto a cada probabilidad de vacunación, y se observa de manera gráfica la disminución gradual del número de infectados conforme se aumenta la probabilidad inicial de la vacuna. La prueba ANOVA realizada (cuadro \ref{anova}) verifica que existen diferencias significativas entre los porcentajes del máximo de infectados con respecto a la probabilidad inicial de vacunación en los experimentos realizados, ya que se obtiene una significancia menor a 0.05, rechazando la hipótesis nula.
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p6.png}
+\end{center}
+\caption{Porcentajes del máximo de agentes infectados obtenidos para cada probabilidad inicial de vacunación.\label{probs}}
+\end{figure}
+
+\begin{table}[h]
+\begin{center}
+\caption{Comparación de los porcentajes del máximo de infectados con respecto a la probabilidad inicial de vacunación.}
+\label{anova}
+\begin{tabular}{c c c c c c}
+\hline
+ &\textbf{GL}&\textbf{Suma Cuad.}&\textbf{Media Cuad.}&\textbf{Valor F}&\textbf{Pr(>F)}\\
+\hline
+Probabilidad&1&38055&38055&203.4&<2e-16\\
+Residuales&108&20210&187\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Conclusión}
+El aumento de la probabilidad inicial de vacunación genera una disminución en el porcentaje máximo de agentes infectados en la simulación del sistema multiagente de una epidemia.
+
+\bibliography{P6}
+\bibliographystyle{unsrtnat}
+
+\end{document}
+
