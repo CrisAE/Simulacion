@@ -1,0 +1,158 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[left=4cm,right=4cm]{geometry}
+
+\title{\bf Práctica 7: búsqueda local}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Maximizar alguna variante de la función bidimensional $g(x,y)$ \cite{dra}, con restricciones $-3\leq x,y \leq3$, en donde la posición actual es un par $x,y$ en donde se requieren dos movimientos aleatorios en $\Delta x$ y $\Delta y$, cuya combinación genera ocho posibles vecinos, de los cuales se selecciona el que obtiene el mayor valor para $g$, y crear, posteriormente, una animación de las réplicas simultáneas de la búsqueda local.
+
+\section{Metodología}
+Para la generación del código se emplea el paquete estadístico R versión 4.0.2 \cite{R}, y se emplea el código para la búsqueda local reportado previamente \cite{dra}\cite{clara}. La función original $g(x,y)$ proporcionada se muestra a continuación:
+\begin{lstlisting}[language=R]
+g <- function(x, y) {
+  return (((x+0.5)^4-30*x^2-20*x+(y+0.5)^4-30*y^2-20*y)/100)
+}
+\end{lstlisting}
+Por lo tanto, se realiza una modificación al elevar el denominador al cuadrado:
+\begin{lstlisting}[language=R]
+g <- function(x, y) {
+  return (((x+0.5)^4-30*x^2-20*x+(y+0.5)^4-30*y^2-20*y)^2/100)
+}
+\end{lstlisting}
+
+La función modificada se utiliza para la búsqueda local, considerando las restricciones  $-3\leq x,y \leq3$ y generando movimientos al azar en $\Delta x$ y en $\Delta y$, en pasos de 0.25, utilizando quince réplicas de búsqueda simultáneas en cien y en mil pasos. Finalmente, para producir la animación se utiliza el servicio en línea gratuito de Ezgif \cite{gif}.
+
+\section{Resultados y discusión}
+En la figura \ref{visual} se observa la función $g(x,y)$ original y la versión modificada en tres y dos dimensiones. Se observa claramente que en la versión modificada se producen cuatro máximos de distinto valor en el eje $z$. 
+
+En la figura \ref{cien} se presentan los pasos 1, 19 y 98 de la búsqueda realizada en cien pasos, observando que las réplicas localizan los cuatro máximos de la función al finalizar la simulación, aunque la cantidad de las réplicas en cada máximo no presenta un patrón respecto al valor de $z$ de cada uno de ellos, y tampoco se localizan en el centro exacto. En el experimento con mil pasos, presentado en la figura \ref{mil}, se observa una conducta similar, por lo que la distribución aleatoria inicial de las réplicas y la distancia entre cada uno de los máximos influye principalmente en la búsqueda, puesto que la réplica no localiza ningún valor mejor dentro del rango de vecinos, en comparación con el valor de los máximos en $z$ y de la cantidad de pasos del experimento, para este caso en particular.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-2o.png}
+\caption{Función original 3D.}
+\label{f1}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-flat-2.png}
+\caption{Función original 2D.}
+\label{f1d}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-2.png}
+\caption{Función modificada 3D.}
+\label{f2}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-flat-1.png}
+\caption{Función modificada 2D.}
+\label{f2d}
+\end{subfigure}
+\caption{Visualización de la función bidimensional original y modificada en tres (3D) y dos dimensiones (2D).}
+\label{visual}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-1001.png}
+\caption{Paso 1.}
+\label{f1}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-1019.png}
+\caption{Paso 19.}
+\label{f1d}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-1098.png}
+\caption{Paso 98.}
+\label{f2d}
+\end{subfigure}
+\caption{Búsqueda local de las 15 réplicas simultáneas en cien pasos.}
+\label{cien}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p72-1001.png}
+\caption{Paso 1.}
+\label{f1}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p72-1039.png}
+\caption{Paso 39.}
+\label{f1d}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p72-1500.png}
+\caption{Paso 500.}
+\label{f2d}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p72-11000.png}
+\caption{Paso 1000.}
+\label{f2d}
+\end{subfigure}
+\caption{Búsqueda local de las 15 réplicas simultáneas en mil pasos.}
+\label{mil}
+\end{figure}
+
+Las animaciones generadas para los exprimentos en cien y en mil pasos se localizan en el repositorio de GitHub en https://github.com/CrisAE/Simulacion/blob/master/P7/Cien-anim.gif y en https://github.com/CrisAE/Simulacion/blob/master/P7/Mil-anim.gif, en donde se observa el comportamiento de las quince réplicas durante la búsqueda de los cuatro máximos de la función.
+
+\section{Conclusión}
+Las quince réplicas localizan los cuatro máximos de la función modificada conforme aumentan los pasos, independientemente del valor en el eje $z$ que posean y de la cantidad de pasos del experimento, para este caso en particular.
+
+\section{Reto 1}
+Cambiar la regla de movimiento de una solución \textbf{x} a la siguiente a la de recocido simulado \cite{dra}: para optimizar la función $f(x)$, se genera una solución actual \textbf{x} un solo vecino x'=x+$\Delta$x. Se calcula $\delta=f(x')-f(x)$ (para minimizar, al revés para maximizar). Si $\delta>0$, siempre se acepta al vecino x' en la solución actual como mejora, y si $\delta<0$, se acepta a x' con probabilidad exp$(-\delta/T)$, en donde $T$ es una temperatura en donde la reducción se logra multiplicando el valor actual de $T$ con $\xi<1$. Examina los efectos estadísticos del valor inicial de $T$ y el valor de $\xi$ en la calidad de la solución.
+
+Para ello, se emplea la función $g(x,y)$ modificada, y se utiliza el mismo código generado para la búsqueda local \cite{clara}\cite{ric} modificándolo para que incluya el movimiento del valor de recocido simulado. Los valores iniciales de $T$ son de 0, 10, 15, 20 y 30, mientras que el valor inicial de $\xi$ es de 0.20, 0.40, 0.70 y 0.99, para cien réplicas en cien pasos.
+
+En la figura \ref{recocido} se presentan los valores en $g$ obtenidos, observando que no se presenta ningún patrón en el valor respecto a la temperatura, mientras que para el valor de $\xi$ tampoco hay un patrón en especial, con la excepción de $\xi$ a 0.99, en donde las medianas de los datos presentan un valor en $g$ más bajo.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-0.20.png}
+\caption{$\xi$ a 0.20.}
+\label{f1}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-0.40.png}
+\caption{$\xi$ a 0.40.}
+\label{f1d}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-0.70.png}
+\caption{$\xi$ a 0.70.}
+\label{f2}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\linewidth}
+\includegraphics[width=\linewidth]{p7-0.99.png}
+\caption{$\xi$ a 0.99.}
+\label{f2d}
+\end{subfigure}
+\caption{Valores de g en las diferentes temperaturas utilizadas a distintos valores de $\xi$.}
+\label{recocido}
+\end{figure}
+
+\bibliography{P7}
+\bibliographystyle{unsrtnat}
+
+\end{document}
