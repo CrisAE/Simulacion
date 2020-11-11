@@ -1,0 +1,118 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage[left=4cm,right=4cm]{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+
+
+\title{\bf Práctica 8: modelo de urnas}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Determinar para diversas combinaciones de cúmulos $k$, número de partículas $n$ y número de iteraciones $t$ el porcentaje de las partículas que se logra filtrar \cite{dra}, si el filtrado se lleva a cabo después de $t$ iteraciones.
+
+\section{Metodología}
+Para la generación del código se emplea el paquete estadístico R versión 4.0.2 \cite{R}, utilizando una rutina previamente reportada para la creación de los cúmulos y las condiciones de agregación y fragmentación de éstos \cite{dra}. A partir de ello, se anida el código en dos ciclos ``for'', uno para la variación de los cúmulos $k$ y otro para la variación del número de partículas iniciales $n$. 
+
+La cantidad de cúmulos se varía en 20,000, 30,000 y 50,000, mientras que el número de partículas se varía en 2,000,000, 4,000,000, 6,000,000 y 10,000,000. Cada combinación de experimentos se realiza en 15, 30 y 50 iteraciones del proceso, y, a su vez, se realizan diez réplicas de cada experimento. Al finalizar el ciclo se calcula el porcentaje de partículas filtradas, tomando en cuenta que deben tener tamaños mayores al tamaño crítico $c$.
+\begin{lstlisting}[language=R]
+       }
+    filtro=subset(freq,tam>c,num)   
+    porc=(sum(filtro)/sum(freq$num)*100)  
+    datos=rbind(datos, c(porc,r,n,k))
+    }
+  }
+}
+\end{lstlisting}
+
+Finalmente, se genera un gráfico de caja-bigote de los porcentajes de partículas filtradas obtenidos en función de $n$ y $k$, y se realiza un ANOVA de dos vías para observar si existen diferencias significativas en función de $n$ y $k$.
+
+\section{Resultados y discusión}
+En las figuras \ref{15}, \ref{30} y \ref{50} se presentan los porcentajes de partículas filtradas obtenidos. Se observa que para todas las iteraciones del proceso realizadas existe una tendencia a que el porcentaje de partículas filtradas aumente conforme se incrementa la cantidad de partículas iniciales, y que al mismo tiempo haya menor variación en los porcentajes obtenidos de filtrado.
+
+El efecto contrario se observa en los porcentajes de filtrado en función de la cantidad de cúmulos, ya que al aumentar la cantidad de éstos el porcentaje de partículas filtradas disminuye, y, también, se presenta una mayor variación en los porcentajes obtenidos para cada cúmulo.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-15-part.png}
+\caption{Variación en $n$.}
+\label{1}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-15-cum.png}
+\caption{Variación en $k$.}
+\label{2}
+\end{subfigure}
+\caption{Porcentajes de partículas filtradas en función de la variación inicial de $n$ partículas y $k$ cúmulos después de 15 iteraciones.}
+\label{15}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-30-part.png}
+\caption{Variación en $n$.}
+\label{3}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-30-cum.png}
+\caption{Variación en $k$.}
+\label{4}
+\end{subfigure}
+\caption{Porcentajes de partículas filtradas en función de la variación inicial de $n$ partículas y $k$ cúmulos después de 30 iteraciones.}
+\label{30}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-50-part.png}
+\caption{Variación en $n$.}
+\label{5}
+\end{subfigure}
+\begin{subfigure}[b]{0.49\linewidth}
+\includegraphics[width=\linewidth]{p8-50-cum.png}
+\caption{Variación en $k$.}
+\label{6}
+\end{subfigure}
+\caption{Porcentajes de partículas filtradas en función de la variación inicial de $n$ partículas y $k$ cúmulos después de 50 iteraciones.}
+\label{50}
+\end{figure}
+
+Debido a las diferencias observadas en los porcentajes de partículas filtradas en función del número de partículas y cúmulos, se realiza un ANOVA de dos vías para validar las diferencias obtenidas. Los resultados de la prueba estadística se presentan en el cuadro \ref{anova}, en donde se obtiene una significancia menor a 0.05, por lo que se rechaza la hipótesis nula, indicando que sí hay una influencia significativa en los porcentajes de partículas filtradas por parte del número incial de partículas $n$ y de la cantidad de cúmulos $k$.   
+
+\begin{table}[h]
+\begin{center}
+\caption{Comparación de los porcentajes de partículas filtradas con respecto a la variación del número de partículas y cúmulos.}
+\label{anova}
+\begin{tabular}{c c c c c c}
+\hline
+ &\textbf{GL}&\textbf{Suma Cuad.}&\textbf{Media Cuad.}&\textbf{Valor F}&\textbf{Pr(>F)}\\
+\hline
+Partículas&1&15.81&15.81&493.70&$<2\times10^{-16}$\\
+Cúmulos&1&7.16&7.16&223.61&$<2\times10^{-16}$\\
+Partículas:Cúmulos&1&2.86&2.86&89.42&$<2\times10^{-16}$\\
+Residuales&356&11.40&0.03\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Conclusión}
+El incremento de la cantidad inicial de partículas aumenta significativamente el porcentaje de partículas filtradas, mientras que el incremento en la cantidad de cúmulos lo disminuye.
+
+\bibliography{P8}
+\bibliographystyle{unsrtnat}
+
+\end{document}
