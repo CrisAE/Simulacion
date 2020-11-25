@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\lstset{language=R, breaklines=true}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage[left=4cm,right=4cm]{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+
+
+\title{\bf Práctica 10: algoritmo genético}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Cambiar la selección de los padres para la reproducción a que utilice selección de ruleta \cite{dra}, generando instancias con tres diferentes reglas, y determinar para cada caso a partir de qué tamaño de instancia el algoritmo genético es mejor que el algoritmo exacto en términos del valor total obtenido por segundo de ejecución y si la inclusión de la selección de ruleta produce una mejora estadísticamente significativa.
+
+\section{Metodología}
+Se emplea el paquete estadístico R versión 4.0.2 \cite{R} para la generación del código, utilizando lo previamente reportado para el algoritmo genético \cite{dra}, realizando las modificaciones pertinentes. Se cambia la probabilidad de selección de padres por la selección de ruleta, mediante el uso del parámetro \texttt{prob} en \texttt{sample}.
+\begin{lstlisting}
+fitness=numeric()
+for (i in 1:tam){fitness=rbind(fitness,c(objetivo(p[i,],valores)))}
+fitness=fitness/sum(fitness)
+padres <- sample(1:tam, 2, replace=FALSE,prob = fitness)
+\end{lstlisting}
+
+Se generan instancias con tres diferentes reglas: 1) el peso y el valor de cada objeto se generan independientemente con una distribución exponencial (I1); 2) el peso de cada objeto se genera independientemente con una distribución exponencial y su valor es positivamente correlacionado con el peso (I2); y 3) el peso de cada objeto se genera independientemente con una distribución exponencial y su valor es inversamente correlacionado con el peso (I3). Para ello se realizan cuatro funciones, una generar los pesos, y tres para generar los valores, una de manera independiente y las otras dos correlacionándolas con el peso; la distribución exponencial se produce cambiando el parámetro \texttt{rnorm} de las funciones originales por \texttt{rexp}.
+
+Posteriormente, se determina el valor total obtenido para cada iteración por parte del algoritmo genético y se compara con el valor obtenido por el algoritmo exacto, en términos del tiempo de ejecución en segundos, y se obtiene el porcentaje de error obtenido por el resultado del algoritmo genético respecto al del algoritmo exacto.
+\begin{lstlisting}
+exacto=optimo/Topt
+Vgen=mejor
+genetico=Vgen/tf
+error=abs(((genetico-exacto)/genetico)*100)
+\end{lstlisting}
+
+Finalmente, con lo anteriormente obtenido se generan gráficos de caja-bigote. También, se comparan las medianas obtenidas para las tres instancias mediante la prueba Kruskal-Wallis para observar si existen diferencias significativas entre la selección de ruleta y la selección normal de padres.
+
+\section{Resultados y discusión}
+En la figura \ref{time} se presentan los tiempos de ejecución en función del valor obtenido en cada iteración para las instancias utilizadas; a simple vista, se observa que con la inclusión de la selección de ruleta se obtiene una reducción en el tiempo de ejecución en comparación con su instancia equivalente sin la selección de ruleta, y que la I1 obtuvo el menor tiempo de ejecución con y sin ruleta, mientras que la I3 el mayor tiempo en ambos casos.
+
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p10-time.png}
+\end{center}
+\caption{Tiempos de ejecución en función del valor obtenido en cada iteración para las diferentes instancias utilizadas, en donde RI1, RI2 y RI3 corresponden a las instancias aplicadas con selección de ruleta, mientras que I1, I2 e I3 corresponden a las instancias sin la selección de ruleta.\label{time}}
+\end{figure}
+
+En la figura \ref{mv} se presentan los mejores valores obtenidos por el algoritmo genético con las diferentes instancias, en donde la tendencia de obtención del valor es la misma que para los tiempos de ejecución para las diferentes instancias y la inclusión de la selección de ruleta. En la figura \ref{error} se presentan los porcentajes de error del valor obtenido en función del tiempo de ejecución en segundos del algoritmo genético respecto a el algoritmo exacto, en donde se observa que la inclusión de la selección de ruleta genera un menor porcentaje de error para las tres instancias, comparadas con sus equivalentes sin ruleta. 
+
+En el cuadro \ref{kw} se presentan los resultados de la prueba de Kruskal-Wallis comparando cada una de las instancias con la inclusión de la ruleta y sin ella; los valores p para las tres instancias son menores a una significancia de 0.05, por lo que se rechaza la hipótesis nula, indicando que existen diferencias significativas en las medianas obtenidas con la inclusión de la selección de ruleta en las instancias.
+
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p10-mv.png}
+\end{center}
+\caption{Mejores valores obtenidos por el algoritmo genético, en donde RI1, RI2 y RI3 corresponden a las instancias aplicadas con selección de ruleta, mientras que I1, I2 e I3 corresponden a las instancias sin la selección de ruleta.\label{mv}}
+\end{figure}
+
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p10-error.png}
+\end{center}
+\caption{Porcentaje de error del valor obtenido en función del tiempo de ejecución del algoritmo genético respecto al algoritmo exacto, en donde RI1, RI2 y RI3 corresponden a las instancias aplicadas con selección de ruleta, mientras que I1, I2 e I3 corresponden a las instancias sin la selección de ruleta.\label{error}}
+\end{figure}
+
+\begin{table}[h]
+\begin{center}
+\caption{Comparación de los valores obtenidos para las diferentes instancias con y sin la selección de ruleta.}
+\label{kw}
+\begin{tabular}{r r r r r r}
+\hline
+ &\textbf{Chi-Cuad.}&\textbf{GL}&\textbf{Valor p}\\
+\hline
+RI1:I1&145.46&48&$9.59\times10^{-12}$\\
+RI2:I2&140.25&25&$<2.20\times10^{-16}$\\
+RI3:I3&147.01&57&$6.94\times10^{-10}$\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Conclusión}
+La inclusión de la selección de ruleta genera diferencias significativas en los valores obtenidos en términos del tiempo de ejecución.
+
+\bibliography{P10}
+\bibliographystyle{unsrtnat}
+
+\end{document}
+
+
+
