@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\lstset{language=R, breaklines=true}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage[left=3cm,right=3cm]{geometry}
+\usepackage[numbers,sort&compress]{natbib}
+
+
+\title{\bf Práctica 12: red neuronal}
+\date{\today}
+\author{C. A. Estrada}
+
+\begin{document}
+
+\maketitle
+
+\section{Objetivo}
+Estudiar de manera sistemática el desempeño de la red neuronal en términos de su puntaje F (F-score) \cite{dra} para los diez dígitos en función de las tres probabilidades asignadas a la generación de los dígitos, variándolas en un experimento factorial adecuado.
+
+\section{Metodología}
+Para efectos de esta práctica, se utiliza el paquete estadístico R versión 4.0.2 \cite{R}. Se emplea el código previamente reportado para la red neuronal \cite{dra}, y se varían las probabilidades asignadas para la generación de los dígitos, asiganando una combinación de tres probabilidades para color, como se muestra en el cuadro \ref{prob}. 
+
+Posteriormente, se anida el código en tres ciclos "for" para las probabilidades de cada color y al final se calcula el valor F para cada matriz de confusión generada en cada una de las diez repeticiones por experimento, lo cual se almacena en un marco de datos.
+\begin{lstlisting}
+print(contadores)
+precision = diag(contadores) / colSums(contadores[,1:10])
+recall = diag(contadores) / rowSums(contadores)
+f1 = ifelse(precision + recall == 0, 0, 2 * precision * recall / (precision + recall))
+datos=rbind(datos,c(rep,neg,gri,bla,f1))
+\end{lstlisting}
+
+\begin{table}[h]
+\begin{center}
+\caption{Probabilidades empleadas para cada color en la generación de dígitos. Las iniciales N, G y B indican el color en cuestión, mientras que los números 1, 2 y 3 indican la probabilidad correspondiente al color en los códigos utilizados en la figura \ref{factor}.}
+\label{prob}
+\begin{tabular}{|r| r| r| r|}
+\hline
+ &\textbf{1}&\textbf{2}&\textbf{3}\\
+\hline
+\textbf{Negro (N)}&0.995&0.900&0.800\\
+\textbf{Gris (G)}&0.920&0.850&0.700\\
+\textbf{Blanco (B)}&0.002&0.010&0.015\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Finalmente, se genera un gráfico de caja-bigote para representar el valor F obtenido por cada experimento de combinación de probabilidades.
+
+\section{Resultados y discusión}
+En la figura \ref{factor} se presentan los valores F obtenidos para cada experimento. Se observa un decremento en el valor F a nivel general, conforme se avanza hacia los experimentos que emplean las menores probabilidades seleccionadas. 
+
+Los primeros experimentos presentan una mediana en valores F altos, mientras que los últimos, que contienen las menores probabilidades para cada dígito, presentan valores F cada vez más bajos. Esto indica que conforme se disminuyen las probabilidades de los dígitos también se dismuniyen tanto la precisión como la exhaustividad en el desempeño de la red neuronal, ya que se presentan valores F cada vez menores.
+
+\begin{figure}[ptb]
+\begin{center}
+\includegraphics[width=\linewidth]{p12-factor.png}
+\end{center}
+\caption{Valores F obtenidos por cada experimento. Las probabilidades empleadas en cada combinación de experimentos se indican como un código, las cuales están dadas en el cuadro \ref{prob}.\label{factor}}
+\end{figure}
+
+\section{Conclusión}
+El efecto de las probabilidades en el valor F obtenido en el desempeño de la red neuronal es de un decremento conforme se disminuyen las probabilidades en los dígitos.
+
+\bibliography{P12}
+\bibliographystyle{unsrtnat}
+
+\end{document}
