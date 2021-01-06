@@ -1,0 +1,35 @@
+###Comandos utilizados en la terminal para hacer uso de GROMACS en la simulación.
+
+#Se convirtió la estructura atomística de la ubiquitina en una estructura de grano grueso en Python 2.7, especificando la generación de la lista de los átomos involucrados, así como la determinación de la clasificación de la estructura secundaria del esqueleto de la proteína:
+python martinize.py -f 1ubq.pdb -o ubq.top -x coarsg.pdb -dssp /usr/bin/dssp -p backbone -ff martini22
+sed -i -e 's/martini\.itp/martini_v2.2.itp/' ubq.top
+
+#Se especificó las características de la caja en que se produce la simulación, utilizando una caja de forma dodecaédrica (óptima para las proteínas de conformación globular) con una distancia mínima de 1nm entre la proteína y cualquier borde de la caja, y se procedió a realizar una minimización en vacío de 100 pasos:
+gmx editconf -f coarsg.pdb -o coarsg.gro -d 1.0 -bt dodecahedron
+gmx grompp -f minim-vacio.mdp -c coarsg.gro -p ubq.top -o minim-vacio.tpr
+gmx mdrun -deffnm minim-vacio -v
+
+#Se realizó la solvatación del sistema utilizando una caja de agua cuyo sistema está equilibrado (temperatura de 300K, 1bar de presión y 2000 pseudoátomos de agua):
+gmx solvate -cp minim-vacio.gro -cs agua.gro -radius 0.21 -o solvated.gro
+#Se copia el sistema actualizado con la adición de agua:
+cp ubq.top sistema.top
+
+#Se procedió a una minimización de energía de 100 pasos, con la subsecuente equilibración del sistema con una duración de 10,000 pasos:
+gmx grompp -f minimizacion.mdp -c solvated.gro -p sistema.top -o minimizacion.tpr
+gmx mdrun -deffnm minimizacion -v
+gmx grompp -f equilibracion.mdp -c minimizacion.gro -p sistema.top -o equilibracion.tpr
+gmx mdrun -deffnm equilibracion -v
+
+#Se comenzó la simulación del sistema completo con una duración de 3,000,000 de pasos:
+gmx grompp -f dinamica.mdp -c equilibracion.gro -p sistema.top -o dinamica.tpr
+gmx mdrun -deffnm dinamica -v
+
+#Se convierte a las trayectorias generadas de tal manera que la traslación y rotación de la ubiquitina sean removidas:
+gmx trjconv -s dinamica.tpr -f dinamica.xtc -fit rot+trans -o proteina.pdb
+
+#Datos para analizar la calidad de la simulación
+#Se calcula la desviación media cuadrática (RMSD)
+gmx rms -s dinamica.tpr -f dinamica.xtc
+#Se calcula la fluctuación media cuadrática 
+gmx rmsf -s dinamica.tpr -f dinamica.xtc -res -o rmsf-res.xvg
+   
